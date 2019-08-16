@@ -4,7 +4,8 @@
 Servo meuservo; 
 
 int angulo = 0;  
-int pino = 14; //pino para a entrada do pulso
+int pino = 14; // pino para a entrada do pulso
+int bomba = 3; // pino para a entrada da bomba
 
 void quartoquadrante(){
   delay(10000);
@@ -25,13 +26,6 @@ void segundoquadrante(){
   delay(10000);
   meuservo.write(180);
 }
- 
-void setup() {
-  meuservo.attach(9); // Declara o pino do servo
-
-  Serial.begin(9600);
-  pinMode(pino, INPUT);
-}
 
 int leitura(){
   int n = 0;
@@ -51,6 +45,20 @@ int leitura(){
   }
 }
 
+void pumpit(){
+  //Vout = (duty cycle/100)*Vcc
+  analogWrite(bomba,127); // 50% Duty Cicle
+  //
+}
+
+void setup() {
+  meuservo.attach(9); // Declara o pino do servo
+
+  Serial.begin(9600);
+  pinMode(pino, INPUT); // configura pino como entrada
+
+  pinMode(bomba,OUTPUT); // configura pino como saída
+}
 
 void loop() { 
 
