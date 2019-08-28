@@ -4,25 +4,30 @@
 
 LiquidCrystal_I2C lcd(0x3F,2,1,0,4,5,6,7,3, POSITIVE); 
 Servo meuservo; 
+Servo meuServo2;
   
 int numberSensores = 4;
 int sensores[4] = {14,15,16,17}; // pino para a entrada do pulso;; A0 , A1, A2, A3
-double pointOff[4]= {1.0,1.0,1.0,1.0};// pontos ideais de cada região em relação a frequencia que o sensor captura
+double pointOff[4]= {0,0,0,0};// pontos ideais de cada região em relação a frequencia que o sensor captura
 int irrigando = 0; // indica se está irrigando ou não
 int currentPoint = 0;// ponto que está sendo irrigado 0 ,1 , 2 ,3
-int positionsServo[4] = {0,180,130,70}; //angulos de cada região para o servo motor
+int positionsServo[4] = {0,180,130,50}; //angulos de cada região para o servo motor
 
 int bomba = 3; // pino para a entrada da bomba
 
 int getNextPoint(){// calcula o sensor que precisa de agua mais urgente, senso que pode ser nenhum (-1)
   //maior acima de 2
   int pointWin = -1;
-  double valuePointWin = 0;
+  double valuePointWin = -100;
   double current;
   
   for(int i =0; i< numberSensores; i++){
+    Serial.println("");
+    Serial.println("Sensor");
+    Serial.println(i);
+    Serial.println(current);
     current = getFrequencyBySensor(sensores[i]);
-    if(current > 2 and current > valuePointWin ){
+    if( current > valuePointWin ){
       pointWin = i;
       valuePointWin = current; 
      }  
@@ -49,11 +54,11 @@ void irrigarOn(){//iniciar irrigação
    irrigando = 1;
    moveServo(currentPoint);
    delay(3000);
-   //ligarBomba 
+   meuServo2.write(90);
 }
 void irrigarOff(){//para irrigação
   irrigando = 0;
-  //desligarmotor
+  meuServo2.write(45);
   delay(3000);  
 }
 void moveServo(int point){//move o servo para o ponto adequado en relação ao point passado
@@ -68,12 +73,14 @@ void pumpit(){
 
 void setup() {
   meuservo.attach(9); // Declara o pino do servo
+  meuServo2.attach(6);
+  meuServo2.write(45);
   lcd.begin (16,2); 
   pinMode(sensores[0], INPUT); // configura pino como entrada
   pinMode(sensores[1], INPUT); // configura pino como entrada
   pinMode(sensores[2], INPUT); // configura pino como entrada
   pinMode(sensores[3], INPUT); // configura pino como entrada
-  pinMode(bomba,OUTPUT); // configura pino como saída
+  
   Serial.begin(9600);
 
 }
@@ -97,6 +104,8 @@ void loop() {
       if(currentPoint > -1){//se o valor de getnextponit == -1 quer dizer que não precisa irrigar em canto nenhum
           irrigarOn();//inicia a irrigação   
       }
-      Serial.println(currentPoint);
+      Serial.println("");
+      Serial.println("Sensor Escolhido");
+      Serial.println(currentPoint+1);
     }
 }  
